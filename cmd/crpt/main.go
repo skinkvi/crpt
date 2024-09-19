@@ -7,11 +7,19 @@ import (
 )
 
 func main() {
-	config.NewConfig("config.yaml")
-	logger.GetLogger().Info("Starting crpt...")
+	cfg, err := config.NewConfig("./config.yaml")
+	if err != nil {
+		logger.GetLogger().Fatal(err.Error())
+	}
 
-	database.Init()
-	logger.GetLogger().Info("Database connected")
+	cfg.Logger.Info("Starting crpt...")
+
+	db := database.Init()
+	if db == nil {
+		cfg.Logger.Fatal("Failed to connect to the database")
+	}
+
+	cfg.Logger.Info("Database connected")
 
 	// TODO: init rabbitmq
 

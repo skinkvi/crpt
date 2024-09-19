@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/skinkvi/crpt/internal/config"
 	"github.com/skinkvi/crpt/pkg/util/logger"
 )

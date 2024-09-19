@@ -17,5 +17,9 @@ func InitLogger() error {
 }
 
 func GetLogger() *zap.Logger {
+	if logger == nil {
+		panic("logger not initialized")
+	}
+
 	return logger
 }

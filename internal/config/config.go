@@ -4,10 +4,12 @@ import (
 	"os"
 
 	"github.com/skinkvi/crpt/pkg/util/logger"
+	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
+	Logger *zap.Logger
 	Server struct {
 		Port int `yaml:"port"`
 	} `yaml:"server"`
@@ -27,21 +29,30 @@ type Config struct {
 	} `yaml:"rabbitmq"`
 }
 
+var cfg *Config
+
 func NewConfig(configPath string) (*Config, error) {
-	cfg := &Config{}
+	err := logger.InitLogger()
+	if err != nil {
+		return nil, err
+	}
+
+	cfg = &Config{
+		Logger: logger.GetLogger(),
+	}
 	yamlFile, err := os.ReadFile(configPath)
 	if err != nil {
-		logger.GetLogger().Error(err.Error())
+		cfg.Logger.Error(err.Error())
 		return nil, err
 	}
 	err = yaml.Unmarshal(yamlFile, cfg)
 	if err != nil {
-		logger.GetLogger().Error(err.Error())
+		cfg.Logger.Error(err.Error())
 		return nil, err
 	}
 	return cfg, nil
 }
 
 func GetConfig() *Config {
-	return &Config{}
+	return cfg
 }
