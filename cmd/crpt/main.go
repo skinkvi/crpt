@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/skinkvi/crpt/internal/config"
+	"github.com/skinkvi/crpt/internal/handlers"
+	"github.com/skinkvi/crpt/internal/server"
 	database "github.com/skinkvi/crpt/pkg/db"
 	"github.com/skinkvi/crpt/pkg/util/logger"
 )
@@ -21,9 +23,18 @@ func main() {
 
 	cfg.Logger.Info("Database connected")
 
-	// TODO: init rabbitmq
+	// rabbitmqConn, err := rabbitmq.InitRabbitMQ()
+	// if err != nil {
+	// 	cfg.Logger.Fatal("Failed to connect to RabbitMQ")
+	// }
+	// defer rabbitmqConn.Close()
 
-	// TODO: start server
+	handlers.InitHandlers()
 
-	// TODO: graceful shutdown
+	cfg.Logger.Info("Handlers initialized")
+
+	server.StartServer()
+
+	// Блокирующий вызов для ожидания завершения сервера
+	select {}
 }
