@@ -3,6 +3,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"html/template"
 	"net/http"
 
 	"github.com/skinkvi/crpt/internal/crypto"
@@ -25,6 +26,11 @@ func InitHandlers() {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+
+		err = template.Must(template.ParseFiles("templates/index.html")).Execute(w, cryptoData)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
 		w.Header().Set("Content-Type", "application/json")

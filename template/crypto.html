@@ -1,0 +1,38 @@
+<!-- templates/crypto.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .crypto-data {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 600px;
+            margin: auto;
+        }
+        .crypto-data h1 {
+            text-align: center;
+        }
+        .crypto-data p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="crypto-data">
+        <h1>{{.Name}}</h1>
+        <p>Current Price: ${{.CurrentPrice}}</p>
+        <p>Price Change 4h: {{.PriceChange4h}}%</p>
+        <p>Price Change 24h: {{.PriceChange24h}}%</p>
+        <p>Price Change 7d: {{.PriceChange7d}}%</p>
+    </div>
+</body>
+</html>
+
