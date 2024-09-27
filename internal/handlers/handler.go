@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
+	"os"
 
 	"github.com/skinkvi/crpt/internal/crypto"
 	"github.com/skinkvi/crpt/pkg/util/logger"
@@ -28,7 +29,9 @@ func InitHandlers() {
 			return
 		}
 
-		err = template.Must(template.ParseFiles("templates/index.html")).Execute(w, cryptoData)
+		wordDir, _ := os.Getwd()
+
+		err = template.Must(template.ParseFiles(wordDir+"/templates/index.html")).Execute(w, cryptoData)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
