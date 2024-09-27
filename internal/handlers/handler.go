@@ -31,7 +31,7 @@ func InitHandlers() {
 
 		wordDir, _ := os.Getwd()
 
-		err = template.Must(template.ParseFiles(wordDir+"/templates/index.html")).Execute(w, cryptoData)
+		err = template.Must(template.ParseFiles(wordDir+"/template/crypto.html")).Execute(w, cryptoData)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
