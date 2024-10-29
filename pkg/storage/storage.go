@@ -20,10 +20,10 @@ type DBStorage struct {
 	Logger *zap.Logger
 }
 
-func NewStorage(logger *zap.Logger) *DBStorage {
-	dbConfig := config.GetConfig().DB
+func NewStorage(cfg *config.Config, logger *zap.Logger) *DBStorage {
+	dbConfig := cfg.DB
 
-	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+	connString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		dbConfig.Host,
 		dbConfig.Port,
 		dbConfig.User,
@@ -37,21 +37,20 @@ func NewStorage(logger *zap.Logger) *DBStorage {
 	for i := 0; i < 10; i++ {
 		db, err = sqlx.Open("postgres", connString)
 		if err != nil {
-			logger.Sugar().Error("Failed to connect to database: ", err.Error())
+			logger.Error("Failed to connect to database", zap.Error(err))
 			time.Sleep(2 * time.Second)
 			continue
 		}
 		if err := db.Ping(); err != nil {
-			logger.Sugar().Error("Failed to Ping database: ", err.Error())
+			logger.Error("Failed to ping database", zap.Error(err))
 			time.Sleep(2 * time.Second)
 			continue
 		}
-
 		break
 	}
 
 	if err != nil {
-		logger.Sugar().Fatal("Could not connect to database:", err)
+		logger.Fatal("Could not connect to database", zap.Error(err))
 	}
 
 	logger.Info("Successful connection to database")

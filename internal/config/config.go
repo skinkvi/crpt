@@ -3,19 +3,17 @@ package config
 import (
 	"os"
 
-	"github.com/skinkvi/crpt/pkg/util/logger"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	Logger *zap.Logger
 	Server struct {
-		Port int `yaml:"port"`
+		Port string `yaml:"port"`
 	} `yaml:"server"`
 	DB struct {
 		Host     string `yaml:"host"`
-		Port     int    `yaml:"port"`
+		Port     string `yaml:"port"`
 		User     string `yaml:"user"`
 		Password string `yaml:"password"`
 		Dbname   string `yaml:"dbname"`
@@ -23,36 +21,25 @@ type Config struct {
 	} `yaml:"db"`
 	Rabbitmq struct {
 		Host     string `yaml:"host"`
-		Port     int    `yaml:"port"`
+		Port     string `yaml:"port"`
 		User     string `yaml:"user"`
 		Password string `yaml:"password"`
 	} `yaml:"rabbitmq"`
 }
 
-var cfg *Config
-
-func NewConfig(configPath string) (*Config, error) {
-	err := logger.InitLogger()
-	if err != nil {
-		return nil, err
-	}
-
-	cfg = &Config{
-		Logger: logger.GetLogger(),
-	}
+func NewConfig(configPath string, logger *zap.Logger) (*Config, error) {
 	yamlFile, err := os.ReadFile(configPath)
 	if err != nil {
-		cfg.Logger.Error(err.Error())
+		logger.Error("Failed to read config file", zap.Error(err))
 		return nil, err
 	}
-	err = yaml.Unmarshal(yamlFile, cfg)
-	if err != nil {
-		cfg.Logger.Error(err.Error())
-		return nil, err
-	}
-	return cfg, nil
-}
 
-func GetConfig() *Config {
-	return cfg
+	var cfg Config
+	err = yaml.Unmarshal(yamlFile, &cfg)
+	if err != nil {
+		logger.Error("Failed to unmarshal config", zap.Error(err))
+		return nil, err
+	}
+
+	return &cfg, nil
 }
