@@ -1,44 +1,48 @@
-// pkg/handlers/handlers.go
 package handlers
 
 import (
-	"encoding/json"
-	"html/template"
 	"net/http"
-	"os"
 
-	"github.com/skinkvi/crpt/internal/crypto"
-	"github.com/skinkvi/crpt/pkg/util/logger"
+	"github.com/gin-gonic/gin"
+	"github.com/skinkvi/crpt/internal/services"
+	"go.uber.org/zap"
 )
 
-func InitHandlers() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World!"))
-	})
+type Handler struct {
+	Service *services.Service
+	Logger  *zap.Logger
+}
 
-	http.HandleFunc("/crypto", func(w http.ResponseWriter, r *http.Request) {
-		cryptoName := r.URL.Query().Get("name")
-		if cryptoName == "" {
-			http.Error(w, "Missing crypto name", http.StatusBadRequest)
-			return
-		}
+func NewHandler(service services.Service, logger *zap.Logger) *Handler {
+	return &Handler{
+		Service: &service,
+		Logger:  logger,
+	}
+}
 
-		cryptoData, err := crypto.GetCryptoData(cryptoName)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+func (h *Handler) Home(c *gin.Context) {
+	c.String(http.StatusOK, "Hello world!")
+}
 
-		wordDir, _ := os.Getwd()
+func (h *Handler) Crypto(c *gin.Context) {
+	cryptoName := c.Query("name")
+	if cryptoName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Missing crypto name",
+		})
+		h.Logger.Error("Not found crypto name")
+		return
+	}
 
-		err = template.Must(template.ParseFiles(wordDir+"/template/crypto.html")).Execute(w, cryptoData)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+	cryptoData, err := h.Service.GetCryptoData(cryptoName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		h.Logger.Error("Falied to get data from crypto name")
+		return
+	}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(cryptoData)
-	})
-
-	logger.GetLogger().Info("Handlers initialized")
+	h.Logger.Sugar().Info("Successful found crypto data: ", cryptoData)
+	c.JSON(http.StatusOK, cryptoData)
 }
